@@ -65,7 +65,7 @@ public class GameController {
    * findAllGames() using pagination and sorting to find the top 5 scores out of all gameRecords
    * @return >5 gameRecords that had the top 5 scores in the database
    */
-  @GetMapping("/findAllGames")
+  @GetMapping("/findTopScores")
   @ResponseBody
   @CrossOrigin(origins = "*")
   public Page<GameRecord> findAllGames() {
