@@ -14,44 +14,40 @@ import org.springframework.shell.standard.ShellMethod;
 @SpringBootApplication
 public class DemoApplication {
   @Autowired
-  BookRepository bookRepository;
+  GameRepository gameRepository;
+  UserRepository userRepository;
 
   public static void main(String[] args) {
      SpringApplication.run(DemoApplication.class, args);
   }
 
-  @ShellMethod("Saves a book to Cloud Datastore: save-book <title> <author> <year>")
-  public String saveBook(String title, String author, int year) {
-     Book savedBook = this.bookRepository.save(new Book(title, author, year));
-     return savedBook.toString();
+  @ShellMethod("Saves a game to Cloud Datastore: save-game <score> <date> <googleId>")
+  public String saveGameR(int score, String date, String googleId) {
+     GameRecord savedGame = this.gameRepository.save(new GameRecord(score, date, googleId));
+     return savedGame.toString();
+  }
+
+  @ShellMethod("Saves a user to Cloud Datastore: save-user <googleId> <userName>")
+  public String saveUser(String googleId, String userName) {
+      UserRecord savedUser = this.userRepository.save(new UserRecord(googleId, userName));
+      return savedUser.toString();
   }
 
   @ShellMethod("Loads all books")
   public String findAllBooks() {
-     Iterable<Book> books = this.bookRepository.findAll();
+     Iterable<GameRecord> books = this.gameRepository.findAll();
      return Lists.newArrayList(books).toString();
   }
 
   @ShellMethod("Loads books by author: find-by-author <author>")
-  public String findByAuthor(String author) {
-     List<Book> books = this.bookRepository.findByAuthor(author);
+  public String findByDate(String date) {
+     List<GameRecord> books = this.gameRepository.findByDate(date);
      return books.toString();
   }
 
-  @ShellMethod("Loads books published after a given year: find-by-year-after <year>")
-  public String findByYearAfter(int year) {
-     List<Book> books = this.bookRepository.findByYearGreaterThan(year);
-     return books.toString();
-  }
-
-  @ShellMethod("Loads books by author and year: find-by-author-year <author> <year>")
-  public String findByAuthorYear(String author, int year) {
-     List<Book> books = this.bookRepository.findByAuthorAndYear(author, year);
-     return books.toString();
-  }
 
   @ShellMethod("Removes all books")
   public void removeAllBooks() {
-     this.bookRepository.deleteAll();
+     this.gameRepository.deleteAll();
   }
 }
