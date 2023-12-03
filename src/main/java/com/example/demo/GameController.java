@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.PathVariable;
 
+/**
+ * GameController for User and Game Repositories
+ */
 @RestController
 public class GameController {
   private final GameRepository gameRepository;
@@ -27,16 +30,26 @@ public class GameController {
     this.userRepository = userRepository;
   }
 
+  /**
+   * saves a gameRecord
+   * @param game: type GameRecord with data members: score, date, googleId
+   * @return String stating if the save was successful or not. Will save the gameRecord into the database if successful
+   */
   @PostMapping("/saveGame")
   @CrossOrigin(origins = "*")
   public String saveGame(@RequestBody GameRecord game) {
     if (game == null) {
-      return "The book is invalid";
+      return "The game is invalid";
     }
     this.gameRepository.save(game);
     return "success";
   }
 
+  /**
+   * saves a userRecord
+   * @param userRecord: type UserRecord with data members: googleId, userName
+   * @return String stating if the save was successful or not. Will save the userRecord into the database if successful.
+   */
   @PostMapping("/saveUser")
   @ResponseBody
   @CrossOrigin(origins = "*")
@@ -47,9 +60,11 @@ public class GameController {
     this.userRepository.save(userRecord);
     return "success";
   }
-  
-  
 
+  /**
+   * findAllGames() using pagination and sorting to find the top 5 scores out of all gameRecords
+   * @return >5 gameRecords that had the top 5 scores in the database
+   */
   @GetMapping("/findAllGames")
   @ResponseBody
   @CrossOrigin(origins = "*")
@@ -58,19 +73,36 @@ public class GameController {
     return gameRepository.findAll(pageable);
   }
 
+  /**
+   * finds gameRecords by date
+   * @param date: in YYYY-MM-DD format, type String
+   * @return a list of GameRecords that contain the same date as the param
+   */
   @GetMapping("/findByDate")
   @CrossOrigin(origins = "*")
-  public List<GameRecord> findByAuthor(@RequestParam String date){
+  public List<GameRecord> findByDate(@RequestParam String date){
     return gameRepository.findByDate(date);
   }
 
-  @GetMapping("/findBooksByGoogleId/{googleId}")
+  /**
+   * find gameRecords by the user's googleId
+   * @param googleId: unique id of user that played the game, from firebase
+   * @return list of GameRecords that were played by the googleId
+   */
+  @GetMapping("/findGamesByGoogleId/{googleId}")
   @CrossOrigin(origins = "*")
-  public List<GameRecord> findBooksByUserId(@PathVariable String googleId) {
+  public List<GameRecord> findByGoogleId(@PathVariable String googleId) {
     Sort sort = Sort.by("score").descending();
     return gameRepository.findByGoogleId(googleId);
   }
 
+  /**
+   * finds gameRecords by userName. It first finds the userRecord in the userRepository by searching by userName
+   * it then finds the googleId associated with that userName. It then uses the googleId to find all
+   * gameRecords associated with that googleId, which is also associated with the userName
+   * @param userName: user's manually inputted userName of type String
+   * @return a list of GameRecods that were played by the userName
+   */
   @GetMapping("/findByUserName/{userName}")
   @CrossOrigin(origins = "*")
   public List<GameRecord> findGameRecordsByUsername(@PathVariable String userName) {
@@ -87,6 +119,14 @@ public class GameController {
     return Collections.emptyList();
   }
 
+  /**
+   * deletes a Game Record that matches the requested params. It will delete the first match if there are multiple exacts.
+   * @param score: type int, the score of the game
+   * @param date: type String, the date the game was played
+   * @param googleId: type String, unique id from firebase for the user
+   * @return String stating if the deletion was successful or not. Will delete the GameRecord from the database if it was found.
+   * Will only delete one gameRecord.
+   */
   @DeleteMapping("/deleteGameRecord")
   @CrossOrigin(origins = "*")
   public String deleteGameRecord(@RequestParam int score, @RequestParam String date, @RequestParam String googleId) {
